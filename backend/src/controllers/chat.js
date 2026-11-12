@@ -1,4 +1,22 @@
 const { preguntarAGemini } = require("../services/ia");
+const Producto = require("../models/producto");
+
+// sin tildes y en minúsculas, para comparar nombres
+const limpiar = (texto) =>
+  String(texto)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+// busca qué productos del catálogo menciona la respuesta (máximo 4) para ofrecer el botón de agregar
+const productosMencionados = async (respuesta) => {
+  const texto = limpiar(respuesta);
+  const productos = await Producto.find({ disponible: true });
+  return productos
+    .map(Producto.paraPublico)
+    .filter((p) => !p.agotado && texto.includes(limpiar(p.nombre)))
+    .slice(0, 4);
+};
 
 const responder = async (req, res) => {
   if (!process.env.GEMINI_API_KEY) {
@@ -24,10 +42,20 @@ const responder = async (req, res) => {
 
   try {
     const respuesta = await preguntarAGemini(historial);
-    res.json({ respuesta });
+    let sugeridos = [];
+    try {
+      sugeridos = await productosMencionados(respuesta);
+    } catch (e) {
+      // si falla esto, la respuesta igual se entrega
+    }
+    res.json({ respuesta, sugeridos });
   } catch (error) {
     console.error("Error del chatbot:", error.message);
-    res.status(502).json({ mensaje: "El asistente está ocupado. Intenta de nuevo en un momento." });
+    // 429 = demasiadas preguntas a la vez en la cuota gratis; lo demás, error general
+    if (error.codigo === 429) {
+      return res.status(429).json({ mensaje: "Hay muchas preguntas ahora mismo. Intenta en un minuto." });
+    }
+    res.status(502).json({ mensaje: "No pude responder ahora. Intenta de nuevo o escríbenos por WhatsApp." });
   }
 };
 

@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { pedir } from "../utils/api";
-import { FILTROS, ICONOS } from "../config";
+import { FILTROS_FIJOS } from "../config";
+import { useCategorias } from "../utils/categorias";
 import TarjetaProducto from "../components/TarjetaProducto";
+import AyudaCompra from "../components/AyudaCompra";
 
 export default function Catalogo({ agregar, ir }) {
+  const { categorias, icono } = useCategorias();
+  const FILTROS = [...FILTROS_FIJOS, ...categorias.map((c) => c.nombre)];
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -43,7 +47,9 @@ export default function Catalogo({ agregar, ir }) {
   return (
     <section className="contenedor seccion">
       <h1>Catálogo</h1>
-      <p className="nota">Los precios son de referencia; la tienda los confirma al recibir tu pedido.</p>
+      <p className="nota">Estos son los precios de la tienda. El lugar, la fecha y la hora de la entrega se coordinan por WhatsApp.</p>
+
+      <AyudaCompra agregar={agregar} />
 
       <input
         className="buscador"
@@ -57,9 +63,9 @@ export default function Catalogo({ agregar, ir }) {
           <button
             key={f}
             className={f === ver ? "filtro activo" : "filtro"}
-            onClick={() => ir(`/catalogo${f === "Todas" ? "" : `?ver=${encodeURIComponent(f)}`}`, ICONOS[f], f)}
+            onClick={() => ir(`/catalogo${f === "Todas" ? "" : `?ver=${encodeURIComponent(f)}`}`, icono(f), f)}
           >
-            {ICONOS[f]} {f}
+            {icono(f)} {f}
           </button>
         ))}
       </div>
@@ -68,9 +74,11 @@ export default function Catalogo({ agregar, ir }) {
       {error && <p className="aviso">{error}</p>}
       {!cargando && !error && visibles.length === 0 && <p>No hay productos para mostrar.</p>}
 
-      <div className="rejilla productos">
-        {visibles.map((p) => (
-          <TarjetaProducto key={p._id} producto={p} agregar={agregar} />
+      <div className="rejilla productos" key={ver}>
+        {visibles.map((p, i) => (
+          <div key={p._id} className="entra" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
+            <TarjetaProducto producto={p} agregar={agregar} />
+          </div>
         ))}
       </div>
     </section>

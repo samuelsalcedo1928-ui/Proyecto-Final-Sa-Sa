@@ -7,6 +7,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const Producto = require("../src/models/producto");
 const Banner = require("../src/models/banner");
+const Categoria = require("../src/models/categoria");
 const Config = require("../src/models/config");
 
 // fecha dentro de N días
@@ -26,6 +27,15 @@ const ejemplos = [
   { nombre: "Peines", categoria: "Variedades", unidad: "Docena", precio: 15000, precioUnidad: 1500 },
   { nombre: "Crema para el cuerpo", categoria: "Variedades", unidad: "Docena", precio: 50000, precioUnidad: 5000, destacado: true },
 ].map((p) => ({ ...p, descripcion: "Precio de ejemplo" }));
+
+// algunos con stock de prueba (los demás no controlan stock)
+const stockEjemplo = { "Arroz (bolsa de 500 g)": 40, "Aceite de litro": 15, Gaseosa: 25, Escoba: 3 };
+ejemplos.forEach((p) => {
+  if (stockEjemplo[p.nombre] !== undefined) {
+    p.stock = stockEjemplo[p.nombre];
+    p.stockMinimo = 5;
+  }
+});
 
 const banners = [
   { titulo: "Surtido al por mayor para tu negocio y tu hogar", subtitulo: "Bultos, pacas y cajas con domicilio sin costo", ver: "", textoBoton: "Ver catálogo", orden: 1 },
@@ -54,6 +64,9 @@ const sembrar = async () => {
   } else {
     console.log("Ya hay banners, no se agregó nada.");
   }
+
+  await Categoria.asegurarBase();
+  console.log("Categorías listas.");
 
   await Config.obtener(); // crea los ajustes con los valores por defecto si no existían
   console.log("Ajustes de la tienda listos.");

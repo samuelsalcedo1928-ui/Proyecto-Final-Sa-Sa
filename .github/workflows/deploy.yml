@@ -37,6 +37,7 @@ jobs:
           # Se configuran en GitHub: Settings > Secrets and variables > Actions > Variables
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_WHATSAPP: ${{ vars.VITE_WHATSAPP }}
+          VITE_GOATCOUNTER: ${{ vars.VITE_GOATCOUNTER }}
 
       - uses: actions/upload-pages-artifact@v3
         with:

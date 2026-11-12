@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.get("/", controlador.obtener);
 router.put("/", protegerAdmin, controlador.actualizar);
+router.put("/sobre", protegerAdmin, controlador.actualizarSobre);
 
 module.exports = router;

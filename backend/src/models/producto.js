@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
-const CATEGORIAS = ["Comida", "Aseo", "Variedades", "Cosas frías"];
-
 const productoSchema = new mongoose.Schema(
   {
     nombre: { type: String, required: true, trim: true },
-    categoria: { type: String, required: true, enum: CATEGORIAS },
+    categoria: { type: String, required: true, trim: true },
+    // palabras clave sin #, ej: snack, merienda, dulce. Ayudan a la búsqueda inteligente
+    etiquetas: { type: [String], default: [] },
     // cómo se vende al por mayor: Bulto, Paca, Caja, Docena...
     unidad: { type: String, required: true, trim: true },
     // precio de esa presentación, en pesos colombianos
@@ -24,22 +24,34 @@ const productoSchema = new mongoose.Schema(
     precioOferta: { type: Number, default: 0, min: 0 },
     ofertaHasta: { type: Date, default: null },
     ofertaTipo: { type: String, enum: ["", "oferta", "caducidad"], default: "" },
+    // cuántas presentaciones hay (null = no se controla el stock)
+    stock: { type: Number, default: null, min: 0 },
+    // avisa en el panel cuando queden esta cantidad o menos
+    stockMinimo: { type: Number, default: 0, min: 0 },
   },
   { timestamps: true },
 );
 
 // le agrega al producto si está en oferta y cuál es su precio de hoy
-// (lo usan la API y el chatbot, así la fecha de fin se respeta sola)
+// (lo usa la API, así la fecha de fin se respeta sola)
 function conOferta(producto) {
   const p = producto.toObject ? producto.toObject() : { ...producto };
   const vigente = !p.ofertaHasta || new Date(p.ofertaHasta) > new Date();
   p.enOferta = p.precioOferta > 0 && p.precioOferta < p.precio && vigente;
   p.precioActual = p.enOferta ? p.precioOferta : p.precio;
+  p.agotado = p.stock !== null && p.stock !== undefined && p.stock <= 0;
   return p;
 }
 
 const Producto = mongoose.model("Producto", productoSchema);
 
 module.exports = Producto;
-module.exports.CATEGORIAS = CATEGORIAS;
 module.exports.conOferta = conOferta;
+
+// versión para el público: sin las cantidades de stock
+module.exports.paraPublico = (producto) => {
+  const p = conOferta(producto);
+  delete p.stock;
+  delete p.stockMinimo;
+  return p;
+};

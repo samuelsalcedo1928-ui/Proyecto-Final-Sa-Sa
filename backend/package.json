@@ -8,6 +8,7 @@
     "dev": "node --watch index.js",
     "admin": "node scripts/crearAdmin.js",
     "sembrar": "node scripts/sembrar.js",
+    "productos": "node scripts/cargarProductos.js",
     "modelos": "node scripts/modelos.js"
   },
   "dependencies": {

@@ -15,7 +15,7 @@ const login = async (req, res) => {
       return res.status(401).json({ mensaje: "Correo o contraseña incorrectos." });
     }
 
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "2h" });
+    const token = jwt.sign({ id: admin._id, rol: "admin" }, process.env.JWT_SECRET, { expiresIn: "2h" });
     res.json({ token, email: admin.email });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al iniciar sesión." });
@@ -27,4 +27,25 @@ const yo = (req, res) => {
   res.json({ email: req.admin.email });
 };
 
-module.exports = { login, yo };
+// cambiar la contraseña del admin (pide la actual por seguridad)
+const cambiarPassword = async (req, res) => {
+  try {
+    const actual = String(req.body.actual || "");
+    const nueva = String(req.body.nueva || "");
+
+    if (nueva.length < 8) {
+      return res.status(400).json({ mensaje: "La nueva contraseña debe tener mínimo 8 caracteres." });
+    }
+    if (!(await bcrypt.compare(actual, req.admin.password))) {
+      return res.status(400).json({ mensaje: "La contraseña actual no es correcta." });
+    }
+
+    req.admin.password = await bcrypt.hash(nueva, 10);
+    await req.admin.save();
+    res.json({ mensaje: "Contraseña cambiada." });
+  } catch (error) {
+    res.status(500).json({ mensaje: "No se pudo cambiar la contraseña." });
+  }
+};
+
+module.exports = { login, yo, cambiarPassword };

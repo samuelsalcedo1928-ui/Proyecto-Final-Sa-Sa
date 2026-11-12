@@ -13,6 +13,11 @@ const protegerAdmin = async (req, res, next) => {
     const token = cabecera.split(" ")[1];
     const datos = jwt.verify(token, process.env.JWT_SECRET);
 
+    // el token de un cliente no sirve aquí
+    if (datos.rol !== "admin") {
+      return res.status(401).json({ mensaje: "Sesión vencida. Inicia sesión de nuevo." });
+    }
+
     // el admin tiene que seguir existiendo
     const admin = await Admin.findById(datos.id);
     if (!admin) {

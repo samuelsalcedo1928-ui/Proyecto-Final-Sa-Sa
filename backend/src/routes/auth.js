@@ -13,6 +13,7 @@ const limiteLogin = rateLimit({
 });
 
 router.post("/login", limiteLogin, controlador.login);
+router.post("/password", protegerAdmin, controlador.cambiarPassword);
 router.get("/me", protegerAdmin, controlador.yo);
 
 module.exports = router;

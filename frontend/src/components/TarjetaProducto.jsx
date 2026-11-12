@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { formatearPrecio, porcentajeDescuento, fechaCorta } from "../utils/formato";
 import { rutaImagen } from "../utils/imagen";
-import { ICONOS } from "../config";
+import { useCategorias } from "../utils/categorias";
 
 export default function TarjetaProducto({ producto, agregar }) {
+  const { icono } = useCategorias();
   // la persona elige comprar la presentación (paca, bulto...) o una sola unidad
   const [modo, setModo] = useState("presentacion");
 
@@ -21,12 +22,13 @@ export default function TarjetaProducto({ producto, agregar }) {
         {foto ? (
           <img src={foto} alt={producto.nombre} loading="lazy" />
         ) : (
-          <span className="tarjeta-icono">{ICONOS[producto.categoria] || "📦"}</span>
+          <span className="tarjeta-icono">{icono(producto.categoria)}</span>
         )}
         {hayOferta && (
           <span className="descuento">-{porcentajeDescuento(producto.precio, producto.precioOferta)}%</span>
         )}
         {hayOferta && producto.ofertaTipo === "caducidad" && <span className="por-vencer">Por vencer</span>}
+        {producto.agotado && <span className="agotado">Agotado</span>}
       </div>
 
       <div className="tarjeta-cuerpo">
@@ -51,8 +53,8 @@ export default function TarjetaProducto({ producto, agregar }) {
           <p className="oferta-hasta">Oferta hasta el {fechaCorta(producto.ofertaHasta)}</p>
         )}
 
-        <button className="boton" onClick={() => agregar(producto, modo)}>
-          Agregar al pedido
+        <button className="boton" onClick={() => agregar(producto, modo)} disabled={producto.agotado}>
+          {producto.agotado ? "Agotado" : "Agregar al pedido"}
         </button>
       </div>
     </article>

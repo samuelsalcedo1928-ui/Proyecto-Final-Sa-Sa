@@ -1,5 +1,6 @@
 const Producto = require("../models/producto");
-const { conOferta } = Producto;
+const Categoria = require("../models/categoria");
+const { conOferta, paraPublico } = Producto;
 
 // devuelve un número positivo o 0
 const positivo = (valor) => {
@@ -15,6 +16,23 @@ const leerFecha = (valor) => {
   return isNaN(fecha) ? null : fecha;
 };
 
+// "#snack, #dulce merienda" -> ["snack", "dulce", "merienda"]
+const limpiarEtiquetas = (valor) => {
+  const texto = Array.isArray(valor) ? valor.join(" ") : String(valor || "");
+  const lista = texto
+    .toLowerCase()
+    .split(/[\s,#;]+/)
+    .map((e) => e.trim().slice(0, 24))
+    .filter(Boolean);
+  return [...new Set(lista)].slice(0, 12);
+};
+
+// la categoría tiene que existir (las crea el admin en su pestaña)
+const categoriaExiste = async (nombre) => {
+  await Categoria.asegurarBase();
+  return !!(await Categoria.exists({ nombre }));
+};
+
 // valida y limpia lo que llega del formulario del admin
 const limpiarDatos = (body) => {
   const nombre = String(body.nombre || "").trim();
@@ -23,7 +41,8 @@ const limpiarDatos = (body) => {
 
   if (!nombre || !unidad) return { error: "Nombre y unidad son obligatorios." };
   if (!Number.isFinite(precio) || precio < 0) return { error: "El precio no es válido." };
-  if (!Producto.CATEGORIAS.includes(body.categoria)) return { error: "Categoría no válida." };
+  const categoria = String(body.categoria || "").trim();
+  if (!categoria) return { error: "Elige una categoría." };
 
   const precioOferta = positivo(body.precioOferta);
   if (precioOferta > 0 && precioOferta >= precio) {
@@ -34,12 +53,23 @@ const limpiarDatos = (body) => {
   let ofertaTipo = "";
   if (precioOferta > 0) ofertaTipo = body.ofertaTipo === "caducidad" ? "caducidad" : "oferta";
 
+  // stock vacío = no se controla
+  const stockCrudo = body.stock;
+  let stock = null;
+  if (stockCrudo !== "" && stockCrudo !== null && stockCrudo !== undefined) {
+    stock = Math.floor(Number(stockCrudo));
+    if (!Number.isFinite(stock) || stock < 0) return { error: "El stock no es válido." };
+  }
+
   return {
     datos: {
+      stock,
+      stockMinimo: Math.floor(positivo(body.stockMinimo)),
       nombre,
       unidad,
       precio,
-      categoria: body.categoria,
+      categoria,
+      etiquetas: limpiarEtiquetas(body.etiquetas),
       precioUnidad: positivo(body.precioUnidad),
       unidadSuelta: String(body.unidadSuelta || "Unidad").trim() || "Unidad",
       imagen: String(body.imagen || "").trim(),
@@ -57,9 +87,11 @@ const limpiarDatos = (body) => {
 // público: solo muestra los disponibles. El admin pide todos con ?todos=1
 const listar = async (req, res) => {
   try {
-    const filtro = req.query.todos === "1" ? {} : { disponible: true };
+    const esAdmin = req.query.todos === "1";
+    const filtro = esAdmin ? {} : { disponible: true };
     const productos = await Producto.find(filtro).sort({ categoria: 1, nombre: 1 });
-    res.json(productos.map(conOferta));
+    // el público no ve las cantidades de stock, solo si está agotado
+    res.json(productos.map(esAdmin ? conOferta : paraPublico));
   } catch (error) {
     res.status(500).json({ mensaje: "No se pudieron cargar los productos." });
   }
@@ -68,6 +100,7 @@ const listar = async (req, res) => {
 const crear = async (req, res) => {
   const { error, datos } = limpiarDatos(req.body);
   if (error) return res.status(400).json({ mensaje: error });
+  if (!(await categoriaExiste(datos.categoria))) return res.status(400).json({ mensaje: "Esa categoría no existe." });
 
   try {
     const producto = await Producto.create(datos);
@@ -80,6 +113,7 @@ const crear = async (req, res) => {
 const actualizar = async (req, res) => {
   const { error, datos } = limpiarDatos(req.body);
   if (error) return res.status(400).json({ mensaje: error });
+  if (!(await categoriaExiste(datos.categoria))) return res.status(400).json({ mensaje: "Esa categoría no existe." });
 
   try {
     const producto = await Producto.findByIdAndUpdate(req.params.id, datos, { new: true });

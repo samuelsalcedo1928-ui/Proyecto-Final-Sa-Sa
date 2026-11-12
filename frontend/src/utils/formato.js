@@ -27,20 +27,30 @@ export function fechaCorta(iso) {
   return new Date(iso).toLocaleDateString("es-CO", { day: "numeric", month: "short" });
 }
 
-// texto que le llega a la tienda por WhatsApp
-export function armarMensajePedido(carrito, nombre, barrio) {
-  let texto = "Hola, quiero hacer este pedido:\n\n";
+// "9 de noviembre de 2026, 3:45 p. m."
+export function fechaLarga(iso) {
+  return new Date(iso).toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short" });
+}
 
-  carrito.forEach((item) => {
-    texto += `- ${item.cantidad} x ${item.nombre} (${item.unidad}) = ${formatearPrecio(item.precio * item.cantidad)}\n`;
+// texto que le llega a la tienda por WhatsApp (el pedido ya viene del servidor con su ticket)
+export function armarMensajePedido(pedido, nombre, barrio, correo) {
+  let texto = `Hola, hice el pedido ${pedido.ticket} en la página:\n\n`;
+
+  pedido.items.forEach((item) => {
+    texto += `- ${item.cantidad} x ${item.nombre} (${item.unidad}) = ${formatearPrecio(item.subtotal)}\n`;
   });
 
-  texto += `\nTotal estimado: ${formatearPrecio(totalCarrito(carrito))}\n`;
-  texto += "(los precios y el domicilio los confirma la tienda)\n";
+  texto += `\nTotal: ${formatearPrecio(pedido.total)}\n`;
+  texto += "Quiero coordinar el lugar, la fecha y la hora de la entrega.\n";
   if (nombre) texto += `\nNombre: ${nombre}`;
   if (barrio) texto += `\nBarrio: ${barrio}`;
+  if (correo) texto += `\nCuenta: ${correo}`;
 
   return texto;
+}
+
+export function mensajeReclamo(pedido, correo) {
+  return `Hola, quiero hacer un reclamo del pedido ${pedido.ticket}.\nCuenta: ${correo}\n\nMi reclamo es: `;
 }
 
 // encodeURIComponent convierte espacios y saltos de línea para que quepan en el link

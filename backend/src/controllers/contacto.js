@@ -1,4 +1,5 @@
 const Mensaje = require("../models/mensaje");
+const notificar = require("../services/notificar");
 
 const correoValido = (texto) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(texto);
 
@@ -54,6 +55,7 @@ const enviar = async (req, res) => {
     });
 
     avisarPorCorreo(guardado);
+    notificar("mensaje", `Mensaje nuevo de ${guardado.nombre}`, guardado.asunto, "mensajes");
     res.status(201).json({ mensaje: "Mensaje enviado. ¡Gracias por escribirnos!" });
   } catch (error) {
     res.status(500).json({ mensaje: "No se pudo enviar el mensaje." });

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { rutaImagen } from "../utils/imagen";
-import { ICONOS } from "../config";
+import { useCategorias } from "../utils/categorias";
 
-// imagen grande del inicio que cambia sola cada 5 segundos
+// imagen grande del inicio que cambia sola cada 6 segundos, con un zoom lento de fondo
 export default function Carrusel({ slides, ir }) {
+  const { icono } = useCategorias();
   const [actual, setActual] = useState(0);
 
   // si cambia la cantidad de slides, volvemos al primero
@@ -16,9 +17,9 @@ export default function Carrusel({ slides, ir }) {
     if (slides.length < 2) return;
     const temporizador = setInterval(() => {
       setActual((a) => (a + 1) % slides.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(temporizador);
-  }, [slides.length]);
+  }, [slides.length, actual]);
 
   const slide = slides[actual] || slides[0];
   const foto = rutaImagen(slide.imagen);
@@ -29,12 +30,20 @@ export default function Carrusel({ slides, ir }) {
 
   function pulsarBoton() {
     const ver = slide.ver || "Todas";
-    ir(`/catalogo?ver=${encodeURIComponent(ver)}`, ICONOS[ver] || "🛒", ver === "Todas" ? "Catálogo" : ver);
+    ir(`/catalogo?ver=${encodeURIComponent(ver)}`, icono(ver), ver === "Todas" ? "Catálogo" : ver);
   }
 
   return (
-    <section className="carrusel" style={foto ? { backgroundImage: `linear-gradient(90deg, rgba(0,0,0,.6), rgba(0,0,0,.1)), url(${foto})` } : undefined}>
-      <div className="contenedor carrusel-texto">
+    <section className="carrusel">
+      {/* capa de fondo con el zoom lento; el key la reinicia en cada slide */}
+      <div
+        key={actual}
+        className="carrusel-fondo"
+        style={foto ? { backgroundImage: `url(${foto})` } : undefined}
+      />
+      {foto && <div className="carrusel-sombra" />}
+
+      <div className="contenedor carrusel-texto" key={"t" + actual}>
         <h1>{slide.titulo}</h1>
         {slide.subtitulo && <p>{slide.subtitulo}</p>}
         <button className="boton" onClick={pulsarBoton}>{slide.textoBoton || "Ver productos"}</button>

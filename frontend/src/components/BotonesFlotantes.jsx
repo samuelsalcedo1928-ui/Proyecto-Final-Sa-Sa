@@ -1,11 +1,8 @@
 import { linkWhatsApp } from "../utils/formato";
 
-export default function BotonesFlotantes({ abrirChat }) {
+export default function BotonesFlotantes() {
   return (
     <div className="flotantes">
-      <button className="flotante flotante-chat" onClick={abrirChat} aria-label="Abrir asistente">
-        💬
-      </button>
       <a
         className="flotante flotante-whatsapp"
         href={linkWhatsApp()}
