@@ -21,7 +21,7 @@ app.set("trust proxy", 1);
 // solo dejamos pasar peticiones de las páginas permitidas
 const permitidos = (
   process.env.CORS_ORIGIN ||
-  "http://localhost:5173,https://proyecto-final-sa-sa.vercel.app"
+  "http://localhost:5173,https://proyecto-final-sa-sa-m82u.vercel.app" // <-- Aquí estaba el error, faltaba el -m82u
 )
   .split(",")
   .map((o) => o.trim());
@@ -33,6 +33,7 @@ app.use(
       if (!origen || permitidos.includes(origen)) return callback(null, true);
       callback(new Error("Origen no permitido"));
     },
+    credentials: true // <-- Añadido para evitar bloqueos en el login
   }),
 );
 
