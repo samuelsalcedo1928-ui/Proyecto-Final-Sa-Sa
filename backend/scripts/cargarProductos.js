@@ -52,7 +52,8 @@ const cargar = async () => {
       nuevos++;
     } else {
       // a los que ya existían solo se les completa la foto y las etiquetas si les faltaban
-      if (!existe.imagen) existe.imagen = p.imagen;
+      // si todavía apuntaba a la foto png vieja, pasa a la webp
+      if (!existe.imagen || /^productos\/.*\.png$/.test(existe.imagen)) existe.imagen = p.imagen;
       if (!existe.etiquetas || existe.etiquetas.length === 0) existe.etiquetas = p.etiquetas;
       await existe.save();
     }

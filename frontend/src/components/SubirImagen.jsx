@@ -26,7 +26,8 @@ function Recortar({ img, proporcion, guia, ayuda, cancelar, aceptar }) {
   const contener = Math.min(ancho / img.width, alto / img.height);
   const zoomMin = contener / cubrir;
 
-  const [zoom, setZoom] = useState(1);
+  // empieza mostrando la imagen completa, para que no se corte nada sin querer
+  const [zoom, setZoom] = useState(zoomMin);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const arrastre = useRef(null);
 
@@ -74,6 +75,14 @@ function Recortar({ img, proporcion, guia, ayuda, cancelar, aceptar }) {
     c.fillStyle = "#fff";
     c.fillRect(0, 0, lienzo.width, lienzo.height);
 
+    // fondo difuminado: la imagen se achica y se estira para tapar el marco entero
+    const chica = document.createElement("canvas");
+    chica.width = 24;
+    chica.height = Math.max(1, Math.round(24 / proporcion));
+    chica.getContext("2d").drawImage(img, 0, 0, chica.width, chica.height);
+    c.imageSmoothingQuality = "high";
+    c.drawImage(chica, 0, 0, lienzo.width, lienzo.height);
+
     const w = img.width * cubrir * zoom;
     const h = img.height * cubrir * zoom;
     c.drawImage(img, (ancho / 2 + pos.x - w / 2) * k, (alto / 2 + pos.y - h / 2) * k, w * k, h * k);
@@ -87,7 +96,7 @@ function Recortar({ img, proporcion, guia, ayuda, cancelar, aceptar }) {
     <div className="recorte-fondo">
       <div className="recorte">
         <h3>Elige qué parte se ve</h3>
-        <p className="nota">Arrastra la imagen para moverla y usa el control para acercar o alejar. Lo que ves dentro del marco es lo que se va a mostrar.</p>
+        <p className="nota">Se muestra la imagen completa. Si quieres que llene todo el marco, usa «Llenar el marco» o el control de acercar, y arrastra la imagen para elegir qué parte se ve. Lo que ves dentro del marco es lo que se va a mostrar.</p>
 
         <div
           className="recorte-marco"
@@ -97,6 +106,7 @@ function Recortar({ img, proporcion, guia, ayuda, cancelar, aceptar }) {
           onPointerUp={terminar}
           onPointerCancel={terminar}
         >
+          <img className="recorte-fondo-img" src={img.src} alt="" draggable={false} />
           <img
             src={img.src}
             alt="Imagen a recortar"
