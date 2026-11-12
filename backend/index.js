@@ -18,8 +18,11 @@ const PORT = process.env.PORT || 3000;
 // en Render hay un proxy delante, sin esto el límite de intentos vería una sola IP
 app.set("trust proxy", 1);
 
-// solo dejamos pasar peticiones de las páginas que están en CORS_ORIGIN
-const permitidos = (process.env.CORS_ORIGIN || "http://localhost:5173")
+// solo dejamos pasar peticiones de las páginas permitidas
+const permitidos = (
+  process.env.CORS_ORIGIN ||
+  "http://localhost:5173,https://proyecto-final-sa-sa.vercel.app"
+)
   .split(",")
   .map((o) => o.trim());
 
