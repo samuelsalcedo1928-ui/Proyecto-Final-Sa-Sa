@@ -14,7 +14,7 @@ import Marquesina from "../components/Marquesina";
 const SLIDE_POR_DEFECTO = {
   titulo: "Surtido al por mayor para tu negocio y tu hogar",
   subtitulo: "Bultos, pacas y cajas de comida, aseo y variedades, directo desde El Pozón, Cartagena.",
-  imagen: "portada.jpg",
+  imagen: "fachada.jpg",
   ver: "",
   textoBoton: "Ver catálogo",
 };

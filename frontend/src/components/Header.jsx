@@ -32,7 +32,7 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
         <div className="contenedor header-fila">
           <Link to="/admin/panel" className="logo">
             {logoOk && (
-              <img src={`${import.meta.env.BASE_URL}img/logo.png`} alt="" className="logo-img" onError={() => setLogoOk(false)} />
+              <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="logo-img" onError={() => setLogoOk(false)} />
             )}
             <span>{NEGOCIO.nombre}</span>
           </Link>
@@ -73,10 +73,9 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
 
       <div className="contenedor header-fila">
         <Link to="/" className="logo">
-          {/* si no existe public/img/logo.png se muestra solo el texto */}
           {logoOk && (
             <img
-              src={`${import.meta.env.BASE_URL}img/logo.png`}
+              src={`${import.meta.env.BASE_URL}favicon.svg`}
               alt=""
               className="logo-img"
               onError={() => setLogoOk(false)}
