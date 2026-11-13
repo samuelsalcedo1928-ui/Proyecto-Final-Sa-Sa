@@ -52,14 +52,6 @@ export default function Inicio({ agregar, ir, config }) {
         ]}
       />
 
-      <Aparecer>
-        <section className="contenedor beneficios">
-          <div>🚚 <strong>{config.domicilio}</strong></div>
-          <div>📦 Pedido mínimo <strong>{formatearPrecio(config.pedidoMinimo)}</strong></div>
-          <div>💳 <strong>{config.mediosPago}</strong></div>
-        </section>
-      </Aparecer>
-
       <section className="contenedor seccion">
         <Aparecer>
           <h2>Encuentra todo fácilmente</h2>

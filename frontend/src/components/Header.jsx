@@ -5,8 +5,10 @@ import { useCategorias } from "../utils/categorias";
 import { PESTANAS } from "../pages/admin/pestanas";
 import Notificaciones from "./Notificaciones";
 import MenuCuenta from "./MenuCuenta";
+import AvisoRotativo from "./AvisoRotativo";
+import { formatearPrecio } from "../utils/formato";
 
-export default function Header({ config, tema, cambiarTema, cantidadCarrito, abrirCarrito, ir, cliente, admin, cerrarAdmin, cerrarSesion }) {
+export default function Header({ config, tema, cambiarTema, cantidadCarrito, abrirCarrito, ir, cliente, admin, vistaCliente, verComoCliente, volverAlPanel, cerrarAdmin, cerrarSesion }) {
   const { categorias, icono } = useCategorias();
   const [busqueda, setBusqueda] = useState("");
   const [logoOk, setLogoOk] = useState(true);
@@ -25,8 +27,18 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
     irA(texto ? `/catalogo?buscar=${encodeURIComponent(texto)}` : "/catalogo");
   }
 
+  // mensajes que van cambiando en la franja amarilla (el primero lo edita el admin en Ajustes)
+  const frasesAviso = [
+    `🚚 ${config.aviso}`,
+    `📦 Pedido mínimo ${formatearPrecio(config.pedidoMinimo)}`,
+    `💳 ${config.mediosPago}`,
+    "🛒 Vendemos por bultos, pacas y cajas",
+    "📍 El Pozón, Cartagena",
+  ];
+
   // con la sesión de administrador el menú cambia: no hay carrito ni categorías, hay opciones del panel
-  if (admin) {
+  // (salvo que esté mirando la tienda como cliente)
+  if (admin && !vistaCliente) {
     return (
       <header className="header">
         <div className="contenedor header-fila">
@@ -39,6 +51,9 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
           <span className="modo-admin">Modo administrador</span>
 
           <div className="header-botones">
+            <button className="boton-icono boton-texto" onClick={verComoCliente}>
+              👁️<span className="solo-grande"> Ver como cliente</span>
+            </button>
             <Notificaciones ir={irA} />
             <button className="boton-icono" onClick={cambiarTema} aria-label="Cambiar modo claro u oscuro">
               {tema === "claro" ? "🌙" : "☀️"}
@@ -69,7 +84,13 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
 
   return (
     <header className="header">
-      {config.aviso && <div className="aviso-superior">🚚 {config.aviso}</div>}
+      {admin && (
+        <div className="vista-cliente-barra">
+          <span>👁️ Estás viendo la tienda como la ve un cliente</span>
+          <button onClick={volverAlPanel}>Volver al panel</button>
+        </div>
+      )}
+      {config.aviso && <AvisoRotativo frases={frasesAviso} />}
 
       <div className="contenedor header-fila">
         <Link to="/" className="logo">

@@ -101,6 +101,8 @@ function Contenido() {
   const [aviso, setAviso] = useState("");
   // true cuando hay sesión de administrador (el menú de arriba cambia)
   const [admin, setAdmin] = useState(!!localStorage.getItem("token_admin"));
+  // true cuando el admin está mirando la tienda como la vería un cliente
+  const [vistaCliente, setVistaCliente] = useState(false);
   // el carrito del servidor ya se trajo y ya se puede guardar
   const [carritoListo, setCarritoListo] = useState(false);
   const unirAlTraer = useRef(false);
@@ -148,6 +150,11 @@ function Contenido() {
     else if (!titulo) titulo = "Página no encontrada";
     document.title = `${titulo} | ${NEGOCIO.nombre}`;
     contarPagina(ruta);
+  }, [lugar.pathname]);
+
+  // si el admin entra a una página de administración, sale de la vista de cliente
+  useEffect(() => {
+    if (lugar.pathname.startsWith("/admin")) setVistaCliente(false);
   }, [lugar.pathname]);
 
   // si el token de admin ya venció, se cierra la sesión sin hacer ruido
@@ -268,9 +275,20 @@ function Contenido() {
     irA("/admin/panel");
   }
 
+  function verComoCliente() {
+    setVistaCliente(true);
+    irA("/");
+  }
+
+  function volverAlPanel() {
+    setVistaCliente(false);
+    irA("/admin/panel");
+  }
+
   function cerrarAdmin() {
     localStorage.removeItem("token_admin");
     setAdmin(false);
+    setVistaCliente(false);
     irA("/admin");
   }
 
@@ -294,7 +312,7 @@ function Contenido() {
   function agregar(producto, modo) {
     // el administrador no hace pedidos
     if (admin) {
-      return setAviso("Estás como administrador: aquí no se hacen pedidos.");
+      return setAviso(vistaCliente ? "Vista de cliente: aquí no se hacen pedidos." : "Estás como administrador: aquí no se hacen pedidos.");
     }
 
     const nuevo = crearItem(producto, modo, 1);
@@ -351,6 +369,9 @@ function Contenido() {
         ir={ir}
         cliente={cliente}
         admin={admin}
+        vistaCliente={vistaCliente}
+        verComoCliente={verComoCliente}
+        volverAlPanel={volverAlPanel}
         cerrarAdmin={cerrarAdmin}
         cerrarSesion={cerrarSesion}
       />
@@ -372,7 +393,7 @@ function Contenido() {
         </Routes>
       </main>
 
-      <Footer config={config} admin={admin} />
+      <Footer config={config} admin={admin && !vistaCliente} />
 
       <Carrito
         abierto={carritoAbierto}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { pedir } from "../utils/api";
 import { FILTROS_FIJOS } from "../config";
 import { useCategorias } from "../utils/categorias";
@@ -15,6 +15,10 @@ export default function Catalogo({ agregar, ir }) {
 
   // lo que se está viendo y lo que se busca van en el link (?ver=Aseo&buscar=escoba)
   const [params, setParams] = useSearchParams();
+  const location = useLocation();
+  // si el cambio vino de los botones de aquí abajo, no se repite la animación de entrada
+  // (solo se anima cuando se llega desde el menú de arriba)
+  const desdeFiltro = !!location.state?.filtro;
   const ver = params.get("ver") || "Todas";
   const busqueda = params.get("buscar") || "";
 
@@ -29,7 +33,14 @@ export default function Catalogo({ agregar, ir }) {
     const nuevos = {};
     if (ver !== "Todas") nuevos.ver = ver;
     if (texto) nuevos.buscar = texto;
-    setParams(nuevos, { replace: true });
+    setParams(nuevos, { replace: true, state: { filtro: true } });
+  }
+
+  function elegirFiltro(f) {
+    const nuevos = {};
+    if (f !== "Todas") nuevos.ver = f;
+    if (busqueda) nuevos.buscar = busqueda;
+    setParams(nuevos, { state: { filtro: true } });
   }
 
   const visibles = productos.filter((p) => {
@@ -63,7 +74,7 @@ export default function Catalogo({ agregar, ir }) {
           <button
             key={f}
             className={f === ver ? "filtro activo" : "filtro"}
-            onClick={() => ir(`/catalogo${f === "Todas" ? "" : `?ver=${encodeURIComponent(f)}`}`, icono(f), f)}
+            onClick={() => elegirFiltro(f)}
           >
             {icono(f)} {f}
           </button>
@@ -74,9 +85,13 @@ export default function Catalogo({ agregar, ir }) {
       {error && <p className="aviso">{error}</p>}
       {!cargando && !error && visibles.length === 0 && <p>No hay productos para mostrar.</p>}
 
-      <div className="rejilla productos" key={ver}>
+      <div className="rejilla productos" key={desdeFiltro ? "filtro" : ver}>
         {visibles.map((p, i) => (
-          <div key={p._id} className="entra" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
+          <div
+            key={p._id}
+            className={desdeFiltro ? "celda" : "entra"}
+            style={desdeFiltro ? undefined : { animationDelay: `${Math.min(i, 12) * 40}ms` }}
+          >
             <TarjetaProducto producto={p} agregar={agregar} />
           </div>
         ))}
