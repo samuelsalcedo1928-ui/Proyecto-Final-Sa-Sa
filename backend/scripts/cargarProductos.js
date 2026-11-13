@@ -1,8 +1,3 @@
-// Uso: npm run productos
-// Carga los productos reales de la tienda con sus fotos (están en frontend/public/img/productos).
-// Los PRECIOS son de referencia (buscados en internet y redondeados): ajústalos en el panel.
-// Si un producto ya existe (mismo nombre) no se toca, solo se le pone la foto si no tenía.
-// Con "npm run productos -- --quitar-ejemplos" borra los productos de ejemplo del sembrar.
 require("dotenv").config();
 const mongoose = require("mongoose");
 const Producto = require("../src/models/producto");

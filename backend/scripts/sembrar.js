@@ -1,8 +1,4 @@
-// Uso: npm run sembrar
-// Carga datos de EJEMPLO (precios inventados) para probar la página.
-// Los reales se cambian desde el panel de admin. Solo siembra lo que esté vacío.
-// Con "npm run sembrar -- --reiniciar" borra productos y banners y vuelve a cargar los ejemplos
-// (úsalo solo mientras tengas datos de prueba, ¡borra todo!).
+
 require("dotenv").config();
 const mongoose = require("mongoose");
 const Producto = require("../src/models/producto");

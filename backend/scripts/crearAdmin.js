@@ -1,4 +1,3 @@
-// Uso: npm run admin   (lee ADMIN_EMAIL y ADMIN_PASSWORD del .env)
 require("dotenv").config();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");

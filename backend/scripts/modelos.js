@@ -1,5 +1,3 @@
-// Uso: npm run modelos
-// Muestra los modelos de Gemini que tu clave puede usar para chatear.
 require("dotenv").config();
 
 const ver = async () => {
