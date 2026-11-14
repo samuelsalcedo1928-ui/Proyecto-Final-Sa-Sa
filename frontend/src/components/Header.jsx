@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { NavLink, Link, useNavigate, useSearchParams } from "react-router-dom";
-import { NEGOCIO } from "../config";
+import { NEGOCIO, RUTA_ADMIN } from "../config";
 import { useCategorias } from "../utils/categorias";
 import { PESTANAS } from "../pages/admin/pestanas";
 import Notificaciones from "./Notificaciones";
 import MenuCuenta from "./MenuCuenta";
-import AvisoRotativo from "./AvisoRotativo";
-import { formatearPrecio } from "../utils/formato";
 
 export default function Header({ config, tema, cambiarTema, cantidadCarrito, abrirCarrito, ir, cliente, admin, vistaCliente, verComoCliente, volverAlPanel, cerrarAdmin, cerrarSesion }) {
   const { categorias, icono } = useCategorias();
@@ -15,7 +13,7 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
   const irA = useNavigate();
   const [params] = useSearchParams();
   const pestanaActual = params.get("pestana") || "resumen";
-  const enPanel = window.location.hash.startsWith("#/admin/panel");
+  const enPanel = window.location.hash.startsWith(`#${RUTA_ADMIN}/panel`);
 
   function salir() {
     if (window.confirm("¿Seguro que quieres cerrar la sesión de administrador?")) cerrarAdmin();
@@ -27,22 +25,13 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
     irA(texto ? `/catalogo?buscar=${encodeURIComponent(texto)}` : "/catalogo");
   }
 
-  // mensajes que van cambiando en la franja amarilla (el primero lo edita el admin en Ajustes)
-  const frasesAviso = [
-    `🚚 ${config.aviso}`,
-    `📦 Pedido mínimo ${formatearPrecio(config.pedidoMinimo)}`,
-    `💳 ${config.mediosPago}`,
-    "🛒 Vendemos por bultos, pacas y cajas",
-    "📍 El Pozón, Cartagena",
-  ];
-
   // con la sesión de administrador el menú cambia: no hay carrito ni categorías, hay opciones del panel
   // (salvo que esté mirando la tienda como cliente)
   if (admin && !vistaCliente) {
     return (
       <header className="header">
         <div className="contenedor header-fila">
-          <Link to="/admin/panel" className="logo">
+          <Link to={`${RUTA_ADMIN}/panel`} className="logo">
             {logoOk && (
               <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="logo-img" onError={() => setLogoOk(false)} />
             )}
@@ -70,7 +59,7 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
               <button
                 key={clave}
                 className={enPanel && pestanaActual === clave ? "activa" : ""}
-                onClick={() => irA(`/admin/panel?pestana=${clave}`)}
+                onClick={() => irA(`${RUTA_ADMIN}/panel?pestana=${clave}`)}
               >
                 {nombre}
               </button>
@@ -90,7 +79,7 @@ export default function Header({ config, tema, cambiarTema, cantidadCarrito, abr
           <button onClick={volverAlPanel}>Volver al panel</button>
         </div>
       )}
-      {config.aviso && <AvisoRotativo frases={frasesAviso} />}
+      {config.aviso && <div className="aviso-superior">🚚 {config.aviso}</div>}
 
       <div className="contenedor header-fila">
         <Link to="/" className="logo">

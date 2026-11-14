@@ -65,8 +65,6 @@ export default function MenuCuenta({ cliente, tema, cambiarTema, cerrarSesion })
             </>
           )}
 
-          <hr />
-          <Link to="/admin" onClick={() => setAbierto(false)}>🛠️ Entrar como administrador</Link>
         </div>
       )}
     </div>

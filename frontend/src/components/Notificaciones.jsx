@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { pedir } from "../utils/api";
+import { RUTA_ADMIN } from "../config";
 
 const ICONOS = { pedido: "🛒", cancelacion: "❌", cliente: "👤", stock: "📦", mensaje: "✉️", reclamo: "⚠️" };
 
@@ -28,7 +29,7 @@ export default function Notificaciones({ ir }) {
       await pedir(`/api/notificaciones/${n._id}/leida`, { method: "PATCH", rol: "admin" }).catch(() => {});
     }
     setAbierto(false);
-    ir(`/admin/panel?pestana=${n.pestana}`);
+    ir(`${RUTA_ADMIN}/panel?pestana=${n.pestana}`);
     cargar();
   }
 

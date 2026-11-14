@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { NEGOCIO } from "../config";
+import { NEGOCIO, RUTA_ADMIN } from "../config";
 
 // pie de página con columnas (como en los supermercados en línea)
 export default function Footer({ config, admin }) {
@@ -52,7 +52,8 @@ export default function Footer({ config, admin }) {
           © {new Date().getFullYear()} {NEGOCIO.nombre}. Todos los derechos reservados.
           {NEGOCIO.nit && ` NIT ${NEGOCIO.nit}.`}
         </span>
-        <Link to="/admin">{admin ? "Panel de administración" : "Acceso administrador"}</Link>
+        {/* el acceso de administrador ya no se muestra a los clientes */}
+        {admin && <Link to={`${RUTA_ADMIN}/panel`}>Panel de administración</Link>}
       </div>
     </footer>
   );

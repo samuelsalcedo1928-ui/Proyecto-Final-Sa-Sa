@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { pedir } from "../utils/api";
+import { RUTA_ADMIN } from "../config";
 import { PESTANAS } from "./admin/pestanas";
 
 import Resumen from "./admin/Resumen";
@@ -38,7 +39,7 @@ export default function AdminPanel({ admin, cerrarAdmin }) {
   }
 
   useEffect(() => {
-    if (!admin) irA("/admin");
+    if (!admin) irA(RUTA_ADMIN);
   }, [admin]);
 
   // al cambiar de pestaña se quita el aviso anterior

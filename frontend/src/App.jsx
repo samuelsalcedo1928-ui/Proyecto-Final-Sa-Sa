@@ -21,7 +21,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
 
 import { pedir } from "./utils/api";
-import { CONFIG_POR_DEFECTO, NEGOCIO } from "./config";
+import { CONFIG_POR_DEFECTO, NEGOCIO, RUTA_ADMIN } from "./config";
 import { CategoriasContexto } from "./utils/categorias";
 import { iniciarContador, contarPagina } from "./utils/contador";
 
@@ -146,7 +146,7 @@ function Contenido() {
     const ruta = lugar.pathname;
     let titulo = TITULOS[ruta];
     if (ruta === "/cuenta") titulo = cliente ? "Mis pedidos" : "Mi cuenta";
-    else if (ruta.startsWith("/admin")) titulo = "Administración";
+    else if (ruta.startsWith(RUTA_ADMIN)) titulo = "Administración";
     else if (!titulo) titulo = "Página no encontrada";
     document.title = `${titulo} | ${NEGOCIO.nombre}`;
     contarPagina(ruta);
@@ -154,7 +154,7 @@ function Contenido() {
 
   // si el admin entra a una página de administración, sale de la vista de cliente
   useEffect(() => {
-    if (lugar.pathname.startsWith("/admin")) setVistaCliente(false);
+    if (lugar.pathname.startsWith(RUTA_ADMIN)) setVistaCliente(false);
   }, [lugar.pathname]);
 
   // si el token de admin ya venció, se cierra la sesión sin hacer ruido
@@ -272,7 +272,7 @@ function Contenido() {
     setCliente(null);
     localStorage.setItem("token_admin", token);
     setAdmin(true);
-    irA("/admin/panel");
+    irA(`${RUTA_ADMIN}/panel`);
   }
 
   function verComoCliente() {
@@ -282,14 +282,14 @@ function Contenido() {
 
   function volverAlPanel() {
     setVistaCliente(false);
-    irA("/admin/panel");
+    irA(`${RUTA_ADMIN}/panel`);
   }
 
   function cerrarAdmin() {
     localStorage.removeItem("token_admin");
     setAdmin(false);
     setVistaCliente(false);
-    irA("/admin");
+    irA(RUTA_ADMIN);
   }
 
   function guardarCliente(datos) {
@@ -350,7 +350,7 @@ function Contenido() {
     <section className="contenedor seccion">
       <h1>Estás en modo administrador</h1>
       <p>No se puede tener una cuenta de cliente y la de administrador al mismo tiempo. Para entrar como cliente, primero cierra la sesión de administrador.</p>
-      <button className="boton" onClick={() => irA("/admin/panel")}>Volver al panel</button>
+      <button className="boton" onClick={() => irA(`${RUTA_ADMIN}/panel`)}>Volver al panel</button>
     </section>
   ) : cliente ? (
     <MisPedidos cliente={cliente} cerrarSesion={cerrarSesion} guardarCliente={guardarCliente} />
@@ -387,8 +387,8 @@ function Contenido() {
           <Route path="/privacidad" element={<Legal tipo="privacidad" config={config} />} />
           <Route path="/terminos" element={<Legal tipo="terminos" config={config} />} />
           <Route path="/reclamos" element={<Legal tipo="reclamos" config={config} />} />
-          <Route path="/admin" element={<AdminLogin admin={admin} iniciarAdmin={iniciarAdmin} />} />
-          <Route path="/admin/panel" element={<AdminPanel admin={admin} cerrarAdmin={cerrarAdmin} />} />
+          <Route path={RUTA_ADMIN} element={<AdminLogin admin={admin} iniciarAdmin={iniciarAdmin} />} />
+          <Route path={`${RUTA_ADMIN}/panel`} element={<AdminPanel admin={admin} cerrarAdmin={cerrarAdmin} />} />
           <Route path="*" element={<NoEncontrada />} />
         </Routes>
       </main>

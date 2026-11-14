@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { pedir } from "../utils/api";
+import { RUTA_ADMIN } from "../config";
 
 export default function AdminLogin({ admin, iniciarAdmin }) {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ export default function AdminLogin({ admin, iniciarAdmin }) {
 
   // si ya hay sesión de administrador, va directo al panel
   useEffect(() => {
-    if (admin) irA("/admin/panel");
+    if (admin) irA(`${RUTA_ADMIN}/panel`);
   }, [admin]);
 
   async function entrar(e) {

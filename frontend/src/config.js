@@ -65,3 +65,7 @@ export const ICONOS = {
 
 // los filtros fijos; después van las categorías que haya creado el admin
 export const FILTROS_FIJOS = ["Todas", "Ofertas", "Más vendidos", "Recomendados"];
+
+// dirección secreta del acceso de administrador (no hay ningún botón que lleve a ella).
+// Cámbiala poniendo VITE_RUTA_ADMIN en el .env y en Vercel; así no queda escrita en GitHub.
+export const RUTA_ADMIN = "/" + (import.meta.env.VITE_RUTA_ADMIN || "acceso-privado");
